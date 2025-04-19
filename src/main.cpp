@@ -1,30 +1,41 @@
-#include "SignalOutput.hpp"
-#include "inputs.hpp"
+#include "display.hpp"
+#include "interrupters.hpp"
+#include <Adafruit_SSD1306.h>
 #include <Arduino.h>
 
-#define PIN_BTN1 2
-#define PIN_BTN2 3
-#define PIN_LED 4
-#define PIN_OUT 9
-#define PIN_MOD A3
+#define AC A0
+#define FreqKnob A1
+#define OnTimeKnob A2
+
+#define StaccatoBTN D2
+#define FastBTN D3
+#define EnableBTN D4
+
+void read(State &state) {
+  state.enabled = digitalRead(EnableBTN);
+  state.speed = digitalRead(FastBTN) ? Fast : Slow;
+  state.mod = digitalRead(StaccatoBTN) ? Staccato : Fixed;
+  state.freq = analogRead(FreqKnob);
+  state.ontime = analogRead(OnTimeKnob);
+}
 
 void setup() {
-  AnalogInput ac(A0, 0, 100, 1e3), interval(A1, 1e4, 1e6), length(A2, 0, 4000);
-  SwitchButton mod(PIN_MOD);
-  SignalOutput interrupter(PIN_OUT, PIN_LED);
+  pinMode(StaccatoBTN, INPUT);
+  pinMode(FastBTN, INPUT);
+  pinMode(EnableBTN, INPUT);
 
+  pinMode(AC, INPUT);
+  pinMode(FreqKnob, INPUT);
+  pinMode(OnTimeKnob, INPUT);
+
+  Display display;
   State state;
-  while (unsigned long now = micros()) {
-    state.now = now;
-    state.ac = ac.readValue(now);
-    state.interval = interval.readValue(now);
-    state.length = length.readValue(now);
-    state.fixed = mod.read(now);
+  PWM pwm;
+  delay(2000);
 
-    if (interrupter.tick(state)) {
-      state.signal = !state.signal;
-      state.lastEdge = now;
-    }
+  while (true) {
+    read(state);
+    pwm.update(state);
   }
 }
 
