@@ -15,6 +15,11 @@ void setup() {
     inputs.read(state);
     pwm.update(state);
     staccato.update(state);
+
+    if(state.mod== Mod::Fixed)
+      display.render(state, pwm.view());
+    else
+      display.render(state, staccato.view());
   }
 }
 

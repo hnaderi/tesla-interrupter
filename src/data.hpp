@@ -12,12 +12,12 @@ struct State {
   unsigned int freq, ontime, mains;
 };
 
-struct PWMView{
+struct PWMView {
   unsigned int freq, duty;
 };
 
-struct StaccatoView{
-  unsigned int rep, ontime;
+struct StaccatoView {
+  unsigned int skip, ontime;
 };
 
 #endif // DATA_H_

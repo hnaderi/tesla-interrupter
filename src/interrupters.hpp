@@ -12,14 +12,17 @@ class PWM {
   void disable();
 
 public:
+  PWM();
   void update(const State &state);
   PWMView view();
 };
 
 class Staccato {
-  bool enabled, fast;
+  bool hasSeenAnything = false;
+  unsigned int lastSeenVoltage, countdown = 0, skip, onTime;
 
 public:
+  Staccato();
   void update(const State &state);
   StaccatoView view();
 };

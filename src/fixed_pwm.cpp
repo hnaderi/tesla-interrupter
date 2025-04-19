@@ -7,8 +7,11 @@ static const unsigned int MAX_DUTY = 50, MAX_TOP = __UINT16_MAX__,
 static const float BASE_SLOW = F_CPU / 256. / 2.;
 static const float BASE_FAST = F_CPU / 8. / 2.;
 
+PWM::PWM() { DDRB = 1 << DDB2; }
+
 PWMView PWM::view() {
-  unsigned int freq = BASE_FAST / top, duty = (float)trig / top * 100.0;
+  unsigned int freq = (fast ? BASE_FAST : BASE_SLOW) / top,
+               duty = (float)trig / top * 100.0;
 
   return {.freq = freq, .duty = duty};
 }
@@ -20,11 +23,10 @@ void PWM::update(const State &state) {
 
   enabled = isEnabled;
   fast = isFast;
+  top = map(state.freq, 0, 1023, MIN_TOP, MAX_TOP);
+  trig = map(state.ontime, 0, 1023, MIN_DUTY, MAX_DUTY) / 100.0 * top;
 
   if (enabled) {
-    top = map(state.freq, 0, 1023, MIN_TOP, MAX_TOP);
-    trig = map(state.ontime, 0, 1023, MIN_DUTY, MAX_DUTY) / 100.0 * top;
-
     if (needsSetup) {
       if (fast)
         setupFast();
@@ -60,7 +62,6 @@ void PWM::setupFast() {
   noInterrupts();
   TCCR1A = 1 << COM1B1 | 1 << WGM11 | 1 << WGM10;
   TCCR1B = 1 << WGM13 | 1 << CS11;
-  DDRB = 1 << DDB2;
   OCR1A = top;
   OCR1B = trig;
   interrupts();
@@ -79,7 +80,6 @@ void PWM::setupSlow() {
   noInterrupts();
   TCCR1A = 1 << COM1B1 | 1 << WGM11 | 1 << WGM10;
   TCCR1B = 1 << WGM13 | 1 << CS12;
-  DDRB = 1 << DDB2;
   OCR1A = top;
   OCR1B = trig;
   interrupts();
