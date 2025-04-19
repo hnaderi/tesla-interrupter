@@ -17,6 +17,8 @@ public:
 };
 
 class Staccato {
+  bool enabled, fast;
+
 public:
   void update(const State &state);
   StaccatoView view();

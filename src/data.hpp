@@ -9,7 +9,7 @@ struct State {
   Speed speed = Slow;
   bool enabled = false;
 
-  unsigned int freq, ontime;
+  unsigned int freq, ontime, mains;
 };
 
 struct PWMView{
