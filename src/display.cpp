@@ -1,4 +1,5 @@
 #include "display.hpp"
+#include "logo.h"
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 32
@@ -17,10 +18,9 @@ Display::Display() {
   display.clearDisplay();
   display.setTextColor(SSD1306_WHITE);
   display.cp437(true);
-  display.setTextSize(2);
-  display.println("Interrupter");
+
+  display.drawBitmap(0, 0, logo, SCREEN_WIDTH, SCREEN_HEIGHT, WHITE);
   display.setTextSize(1);
-  display.println("by hnaderi");
   display.display();
 }
 
