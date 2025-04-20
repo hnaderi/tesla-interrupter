@@ -1,7 +1,7 @@
-#include <Arduino.h>
-#include "inputs.hpp"
 #include "display.hpp"
+#include "inputs.hpp"
 #include "interrupters.hpp"
+#include <Arduino.h>
 
 void setup() {
   InputReader inputs;
@@ -16,7 +16,7 @@ void setup() {
     pwm.update(state);
     staccato.update(state);
 
-    if(state.mod== Mod::Fixed)
+    if (state.mod == Mod::Fixed)
       display.render(state, pwm.view());
     else
       display.render(state, staccato.view());
