@@ -6,7 +6,8 @@
 
 class Display {
   Adafruit_SSD1306 display;
-void printEnabled(const State &state);
+  void printEnabled(const State &state);
+  unsigned long lastRender;
 
 public:
   Display();

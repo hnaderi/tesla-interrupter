@@ -5,13 +5,13 @@
 #define SCREEN_HEIGHT 32
 #define OLED_RESET -1 // Reset pin # (or -1 if sharing Arduino reset pin)
 #define SCREEN_ADDRESS 0x3C
+#define SCREEN_UPDATE  100
 
 Display::Display() {
   display = Adafruit_SSD1306(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     for (;;) {
-      // Serial.println(F("SSD1306 allocation failed"));
       delay(1000);
     }
   }
@@ -32,6 +32,10 @@ void Display::printEnabled(const State &state){
 }
 
 void Display::render(const State &state, PWMView view) {
+  unsigned long now = millis();
+  if(lastRender - now < SCREEN_UPDATE)
+    return;
+  else lastRender = now;
   display.setTextColor(WHITE, BLACK);
   display.clearDisplay();
   display.setCursor(0, 0);
@@ -56,6 +60,10 @@ void Display::render(const State &state, PWMView view) {
 }
 
 void Display::render(const State &state, StaccatoView view) {
+  unsigned long now = millis();
+  if(lastRender - now < SCREEN_UPDATE)
+    return;
+  else lastRender = now;
   display.setTextColor(WHITE, BLACK);
   display.clearDisplay();
   display.setCursor(0, 0);
