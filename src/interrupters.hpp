@@ -18,8 +18,9 @@ public:
 };
 
 class Staccato {
-  bool hasSeenAnything = false;
-  unsigned int lastSeenVoltage, countdown = 0, skip, onTime;
+  bool active = false;
+  unsigned int countdown = 0, skip, onTime;
+  inline void trigger();
 
 public:
   Staccato();

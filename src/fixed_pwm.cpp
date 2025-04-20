@@ -1,8 +1,10 @@
 #include "interrupters.hpp"
 #include <Arduino.h>
 
-static const unsigned int MAX_DUTY = 50, MAX_TOP = __UINT16_MAX__,
-                          MIN_TOP = 2000, MIN_DUTY = 0;
+#define MIN_TOP 2000
+#define MAX_TOP __UINT16_MAX__
+#define MIN_DUTY 0
+#define MAX_DUTY 20
 
 static const float BASE_SLOW = F_CPU / 256. / 2.;
 static const float BASE_FAST = F_CPU / 8. / 2.;
@@ -17,32 +19,35 @@ PWMView PWM::view() {
 }
 
 void PWM::update(const State &state) {
-  bool isEnabled = state.enabled && state.mod == Fixed;
   bool isFast = state.speed == Fast;
-  bool needsSetup = isFast != fast || isEnabled != enabled;
+  bool isSelected = state.mod == Mod::Fixed;
+  bool needsSetup = isFast != fast || enabled != state.enabled;
 
-  enabled = isEnabled;
-  fast = isFast;
-  top = map(state.freq, 0, 1023, MIN_TOP, MAX_TOP);
-  trig = map(state.ontime, 0, 1023, MIN_DUTY, MAX_DUTY) / 100.0 * top;
+  if (isSelected) {
+    fast = isFast;
+    top = map(state.freq, 0, 1023, MIN_TOP, MAX_TOP);
+    trig = map(state.ontime, 0, 1023, MIN_DUTY, MAX_DUTY) / 100.0 * top;
+  }
+  if (!(state.enabled && isSelected)) {
+    if (enabled)
+      disable();
+    return;
+  }
 
-  if (enabled) {
-    if (needsSetup) {
-      if (fast)
-        setupFast();
-      else
-        setupSlow();
-    } else {
-      OCR1A = top;
-      OCR1B = trig;
-    }
-
-  } else
-    disable();
+  if (needsSetup) {
+    if (fast)
+      setupFast();
+    else
+      setupSlow();
+  } else {
+    OCR1A = top;
+    OCR1B = trig;
+  }
 }
 
 void PWM::disable() {
   noInterrupts();
+  enabled = false;
   TCCR1A = 0;
   TCCR1B = 0;
   interrupts();
@@ -60,6 +65,7 @@ void PWM::disable() {
 
 void PWM::setupFast() {
   noInterrupts();
+  enabled = true;
   TCCR1A = 1 << COM1B1 | 1 << WGM11 | 1 << WGM10;
   TCCR1B = 1 << WGM13 | 1 << CS11;
   OCR1A = top;
@@ -78,6 +84,7 @@ void PWM::setupFast() {
  */
 void PWM::setupSlow() {
   noInterrupts();
+  enabled = true;
   TCCR1A = 1 << COM1B1 | 1 << WGM11 | 1 << WGM10;
   TCCR1B = 1 << WGM13 | 1 << CS12;
   OCR1A = top;
