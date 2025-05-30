@@ -5,7 +5,7 @@
 #define SCREEN_HEIGHT 32
 #define OLED_RESET -1 // Reset pin # (or -1 if sharing Arduino reset pin)
 #define SCREEN_ADDRESS 0x3C
-#define SCREEN_UPDATE  100
+#define SCREEN_UPDATE 100
 
 Display::Display() {
   display = Adafruit_SSD1306(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
@@ -24,7 +24,7 @@ Display::Display() {
   display.display();
 }
 
-void Display::printEnabled(const State &state){
+void Display::printEnabled(const State &state) {
   if (state.enabled)
     display.print("[On] ");
   else
@@ -33,9 +33,10 @@ void Display::printEnabled(const State &state){
 
 void Display::render(const State &state, PWMView view) {
   unsigned long now = millis();
-  if(lastRender - now < SCREEN_UPDATE)
+  if (lastRender - now < SCREEN_UPDATE)
     return;
-  else lastRender = now;
+  else
+    lastRender = now;
   display.setTextColor(WHITE, BLACK);
   display.clearDisplay();
   display.setCursor(0, 0);
@@ -43,9 +44,9 @@ void Display::render(const State &state, PWMView view) {
   display.print(view.freq);
   display.println("Hz");
 
-  display.print("Duty:     ");
+  display.print("On time:   ");
   display.print(view.duty);
-  display.println("%");
+  display.println("uS");
   display.println();
   display.setTextColor(BLACK, WHITE);
 
@@ -61,9 +62,10 @@ void Display::render(const State &state, PWMView view) {
 
 void Display::render(const State &state, StaccatoView view) {
   unsigned long now = millis();
-  if(lastRender - now < SCREEN_UPDATE)
+  if (lastRender - now < SCREEN_UPDATE)
     return;
-  else lastRender = now;
+  else
+    lastRender = now;
   display.setTextColor(WHITE, BLACK);
   display.clearDisplay();
   display.setCursor(0, 0);

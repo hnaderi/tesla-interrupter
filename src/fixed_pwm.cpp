@@ -3,17 +3,21 @@
 
 #define MIN_TOP 2000
 #define MAX_TOP __UINT16_MAX__
-#define MIN_DUTY 0
-#define MAX_DUTY 20
+#define MAX_ONTIME_MICROS 120
 
 static const float BASE_SLOW = F_CPU / 256. / 2.;
 static const float BASE_FAST = F_CPU / 8. / 2.;
+
+static const float TICK_SLOW = 1.e6 / BASE_SLOW;
+static const float TICK_FAST = 1.e6 / BASE_FAST;
+static const float MAX_ON_TIME_SLOW = MAX_ONTIME_MICROS / TICK_SLOW;
+static const float MAX_ON_TIME_FAST = MAX_ONTIME_MICROS / TICK_FAST;
 
 PWM::PWM() { DDRB = 1 << DDB2; }
 
 PWMView PWM::view() {
   unsigned int freq = (fast ? BASE_FAST : BASE_SLOW) / top,
-               duty = (float)trig / top * 100.0;
+               duty = trig * (fast ? TICK_FAST : TICK_SLOW);
 
   return {.freq = freq, .duty = duty};
 }
@@ -26,7 +30,8 @@ void PWM::update(const State &state) {
   if (isSelected) {
     fast = isFast;
     top = map(state.freq, 0, 1023, MIN_TOP, MAX_TOP);
-    trig = map(state.ontime, 0, 1023, MIN_DUTY, MAX_DUTY) / 100.0 * top;
+    trig = map(state.ontime, 0, 1023, 0,
+               isFast ? MAX_ON_TIME_FAST : MAX_ON_TIME_SLOW);
   }
   if (!(state.enabled && isSelected)) {
     if (enabled)
