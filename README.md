@@ -8,4 +8,4 @@ WIP, to be documented...
 - Two speed mode
   - Slow (0.9Hz to 30Hz)
   - Fast (30Hz to 1KHz)
-- Controllable duty cycle
+- Controllable pulse width
