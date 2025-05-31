@@ -8,6 +8,7 @@
 #define SCREEN_UPDATE 100
 
 Display::Display() {
+  delay(500);
   display = Adafruit_SSD1306(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
